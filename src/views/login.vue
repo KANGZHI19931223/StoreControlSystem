@@ -32,15 +32,15 @@ export default {
       this.$http
         .post('login', this.formData)
         .then((res) => {
-          console.log(res);
           const {data: {data, meta: {msg, status}}} = res;
           if (status === 200) {
             const {token} = data;
             // 提示登陆成功
             this.$message.success(msg);
             // 设置sessionStorage
-            sessionStorage.setItem("token", token);
+            sessionStorage.setItem('token', token);
             // 页面跳转
+            this.$router.push({name: 'home'});
           } else {
             this.$message.error(msg);
           }
