@@ -16,12 +16,9 @@
     <el-container>
       <el-aside width="200px">
          <el-menu
-          router
-          unique-opened
-          default-active="1-1"
-          class="aside-list"
-          @open="handleOpen"
-          @close="handleClose">
+          :router="true"
+          :unique-opened="true"
+          class="aside-list">
           <el-submenu index="1">
             <template slot="title">
               <i class="el-icon-location"></i>
