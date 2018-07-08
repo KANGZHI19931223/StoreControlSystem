@@ -16,6 +16,7 @@
     <el-container>
       <el-aside width="200px">
          <el-menu
+          router
           unique-opened
           default-active="1-1"
           class="aside-list"
@@ -26,7 +27,7 @@
               <i class="el-icon-location"></i>
               <span>用户管理</span>
             </template>
-            <el-menu-item index="1-1">
+            <el-menu-item index="users">
               <i class="el-icon-menu"></i>
               用户列表
             </el-menu-item>
@@ -85,7 +86,9 @@
           </el-submenu>
         </el-menu>
       </el-aside>
-      <el-main>Main</el-main>
+      <el-main>
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
