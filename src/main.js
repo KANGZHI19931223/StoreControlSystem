@@ -9,7 +9,9 @@ import MyAxios from '@/plugins/MyAxios';
 import 'element-ui/lib/theme-chalk/index.css';
 // 导入自定义index.css文件
 import '@/assets/css/index.css';
-
+// 引入moment包
+import moment from 'moment';
+// 全局设置axios
 MyAxios.install = (Vue) => {
   Vue.prototype.$http = MyAxios;
 };
@@ -21,6 +23,10 @@ Vue.use(MyAxios);
 Vue.config.productionTip = false;
 // 下面这行注释意思是将其后面的代码不进行eslint检测
 /* eslint-disable no-new */
+// 全局设置格式化日期过滤器
+Vue.filter('fmtDate', (value, fmtString) => {
+  return moment(value).format(fmtString);
+});
 new Vue({
   el: '#app',
   router,

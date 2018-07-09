@@ -10,6 +10,7 @@
     </el-input>
     <el-button type="success" plain>添加用户</el-button>
     <el-table
+      v-loading="loading"
       border
       :data="userInf"
       style="width: 100%">
@@ -34,9 +35,11 @@
         width="180">
       </el-table-column>
       <el-table-column
-        prop="create_time"
         label="日期"
         width="180">
+        <template slot-scope="scope">
+          {{ scope.row.create_time | fmtDate('YYYY-MM-DD') }}
+        </template>
       </el-table-column>
       <el-table-column
         prop="mg_state"
@@ -66,24 +69,28 @@
 export default {
   data() {
     return {
-      userInf: []
+      userInf: [],
+      loading: true
     };
   },
   methods: {
     // 发送请求,获取用户信息
     async getData() {
+      // 获取数据前显示loading状态
+      this.loading = true;
       // 获取token
       const token = sessionStorage.getItem('token');
       // 在请求头中添加token信息
       this.$http.defaults.headers.common['Authorization'] = token;
       // 发送请求获取user信息(其中的当前页和每页中的数据条数是必须发送的内容)
       const res = await this.$http.get('users?pagenum=1&pagesize=10');
+      // 请求回来数据后loading状态消失
+      this.loading = false;
       const data = res.data;
       const { meta: { msg, status } } = data;
       if (status === 200) {
         const {data: {users}} = data;
         this.userInf = users;
-        console.log(res);
       } else {
         this.$message(msg);
       }
@@ -93,6 +100,7 @@ export default {
     // vue创建完成时调用getData方法
     this.getData();
   }
+  // 注意: 此页中不用验证token, 因为是home的子路由,在加载list组件之前会先加载home组件,home组件中做了token验证
 };
 </script>
 
