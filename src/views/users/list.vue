@@ -11,7 +11,7 @@
       <el-button @click="handleSearch" slot="append" icon="el-icon-search"></el-button>
     </el-input>
     <!-- 添加用户按钮 -->
-    <el-button type="success" plain>添加用户</el-button>
+    <el-button @click="dialogTableVisible = true" type="success" plain>添加用户</el-button>
     <!-- 用户列表展示 -->
     <el-table
       v-loading="loading"
@@ -78,6 +78,27 @@
       :total="total"
       class="page">
     </el-pagination>
+    <!-- 添加用户弹框 -->
+    <el-dialog title="添加用户" :visible.sync="dialogTableVisible">
+      <el-form :rules="rules" label-position="right" label-width="80px" :model="formData">
+        <el-form-item label="用户名称" prop="username">
+          <el-input v-model="formData.username"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="formData.password"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input v-model="formData.email"></el-input>
+        </el-form-item>
+        <el-form-item label="手机号">
+          <el-input v-model="formData.mobile"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -92,7 +113,25 @@ export default {
       total: 0,
       pagesize: 2,
       // 搜索功能绑定的数据
-      searchVal: ''
+      searchVal: '',
+      // 添加用户相关数据
+      dialogTableVisible: false,
+      formData: {
+        username: '',
+        password: '',
+        email: '',
+        mobile: ''
+      },
+      rules: {
+        username: [
+          { required: true, message: '请输入活动名称', trigger: 'blur' },
+          { min: 1, max: 6, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入活动名称', trigger: 'blur' },
+          { min: 6, max: 8, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+        ]
+      }
     };
   },
   methods: {
@@ -186,6 +225,7 @@ export default {
         });
       });
     }
+    // 处理添加用户的函数
   },
   created() {
     // vue创建完成时调用getData方法
