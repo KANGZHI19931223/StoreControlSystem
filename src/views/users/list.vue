@@ -79,13 +79,13 @@
       class="page">
     </el-pagination>
     <!-- 添加用户弹框 -->
-    <el-dialog title="添加用户" :visible.sync="dialogTableVisible">
+    <el-dialog title="添加用户" :visible.sync="dialogTableVisible" @close="handleClose">
       <el-form :rules="rules" label-position="right" label-width="80px" :model="formData">
         <el-form-item label="用户名称" prop="username">
           <el-input v-model="formData.username"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model="formData.password"></el-input>
+          <el-input type="password" v-model="formData.password"></el-input>
         </el-form-item>
         <el-form-item label="邮箱">
           <el-input v-model="formData.email"></el-input>
@@ -96,7 +96,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+        <el-button type="primary" @click="handleAddUser">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
@@ -111,7 +111,7 @@ export default {
       // 分页绑定的相关数据
       pagenum: 1,
       total: 0,
-      pagesize: 2,
+      pagesize: 8,
       // 搜索功能绑定的数据
       searchVal: '',
       // 添加用户相关数据
@@ -224,8 +224,30 @@ export default {
           message: '已取消删除'
         });
       });
-    }
+    },
     // 处理添加用户的函数
+    async handleAddUser() {
+      const res = await this.$http.post('users', this.formData);
+      const data = res.data;
+      const {meta: {msg, status}} = data;
+      if (status === 201) {
+        // 1 提示
+        this.$message.success(msg);
+        // 2 重新加载页面
+        this.getData();
+        // 3 关闭对话框
+        this.dialogTableVisible = false;
+      } else {
+        this.$message.error(msg);
+      }
+    },
+    // 当对话框关闭是执行的函数
+    handleClose() {
+      // 将表单清空 , 也就是将formData清空
+      for (let key in this.formData) {
+        this.formData[key] = '';
+      }
+    }
   },
   created() {
     // vue创建完成时调用getData方法
