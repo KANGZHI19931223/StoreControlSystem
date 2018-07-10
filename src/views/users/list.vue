@@ -62,7 +62,7 @@
         label="操作">
         <template slot-scope="scope">
           <el-button plain size="mini" type="primary" icon="el-icon-edit"></el-button>
-          <el-button plain size="mini" type="danger" icon="el-icon-delete"></el-button>
+          <el-button plain size="mini" type="danger" icon="el-icon-delete" @click="handleDel(scope.row)"></el-button>
           <el-button plain size="mini" type="success" icon="el-icon-check"></el-button>
         </template>
       </el-table-column>
@@ -148,6 +148,43 @@ export default {
         // 提示
         this.$message.error(msg);
       }
+    },
+    // 处理删除用户的函数
+    async handleDel(user) {
+      // 点击删除按钮,弹出确认框
+      this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        // 点击确定按钮执行的操作
+        const res = await this.$http.delete(`users/${user.id}`);
+        const data = res.data;
+        const {meta: {msg, status}} = data;
+        if (status === 200) {
+          // 删除成功
+          // 1 提示
+          this.$message({
+            type: 'success',
+            message: msg
+          });
+          // 2 重新加载用户列表
+          this.getData();
+        } else {
+          // 删除失败
+          // 1 提示
+          this.$message({
+            type: 'error',
+            message: msg
+          });
+        }
+      }).catch(() => {
+        // 点击取消按钮执行的操作
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
     }
   },
   created() {
