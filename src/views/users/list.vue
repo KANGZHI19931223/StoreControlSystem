@@ -7,8 +7,8 @@
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 搜索框 -->
-    <el-input placeholder="请输入内容" class="search" clearable>
-      <el-button slot="append" icon="el-icon-search"></el-button>
+    <el-input v-model="searchVal" placeholder="请输入内容" class="search" clearable>
+      <el-button @click="handleSearch" slot="append" icon="el-icon-search"></el-button>
     </el-input>
     <!-- 添加用户按钮 -->
     <el-button type="success" plain>添加用户</el-button>
@@ -89,7 +89,9 @@ export default {
       // 分页绑定的相关数据
       pagenum: 1,
       total: 0,
-      pagesize: 2
+      pagesize: 2,
+      // 搜索功能绑定的数据
+      searchVal: ''
     };
   },
   methods: {
@@ -102,7 +104,7 @@ export default {
       // 在请求头中添加token信息
       this.$http.defaults.headers.common['Authorization'] = token;
       // 发送请求获取user信息(其中的当前页和每页中的数据条数是必须发送的内容)
-      const res = await this.$http.get(`users?pagenum=${this.pagenum}&pagesize=${this.pagesize}`);
+      const res = await this.$http.get(`users?pagenum=${this.pagenum}&pagesize=${this.pagesize}&query=${this.searchVal}`);
       // 请求回来数据后loading状态消失
       this.loading = false;
       const data = res.data;
@@ -115,14 +117,20 @@ export default {
         this.$message(msg);
       }
     },
+    // 没页展示的数据条数发生改变时触发的函数
     handleSizeChange(val) {
       this.pagesize = val;
       // 每页数据条数发生改变时,重新加载数据
       this.getData();
     },
+    // 当页码发生改变时触发的函数
     handleCurrentChange(val) {
       this.pagenum = val;
       // 当前页码改变时重新加载数据
+      this.getData();
+    },
+    // 点击搜索按钮触发的事件
+    handleSearch() {
       this.getData();
     }
   },
