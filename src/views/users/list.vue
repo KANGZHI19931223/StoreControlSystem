@@ -207,7 +207,9 @@ export default {
             type: 'success',
             message: msg
           });
-          // 2 重新加载用户列表
+          // 2 重置当前页码
+          this.pagenum = 1;
+          // 3 重新加载用户列表
           this.getData();
         } else {
           // 删除失败
