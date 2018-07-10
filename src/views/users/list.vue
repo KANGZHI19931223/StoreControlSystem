@@ -61,7 +61,7 @@
       <el-table-column
         label="操作">
         <template slot-scope="scope">
-          <el-button plain size="mini" type="primary" icon="el-icon-edit"></el-button>
+          <el-button plain size="mini" type="primary" icon="el-icon-edit" @click="handleClickEdit(scope.row.id)"></el-button>
           <el-button plain size="mini" type="danger" icon="el-icon-delete" @click="handleDel(scope.row)"></el-button>
           <el-button plain size="mini" type="success" icon="el-icon-check"></el-button>
         </template>
@@ -99,6 +99,24 @@
         <el-button type="primary" @click="handleAddUser">确 定</el-button>
       </div>
     </el-dialog>
+    <!-- 修改用户弹框 -->
+    <el-dialog title="编辑用户" :visible.sync="editDialogTableVisible" @close="handleClose">
+      <el-form label-position="right" label-width="80px" :model="formData">
+        <el-form-item label="用户名称">
+          <el-input v-model="formData.username" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input v-model="formData.email"></el-input>
+        </el-form-item>
+        <el-form-item label="电话">
+          <el-input v-model="formData.mobile"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="editDialogTableVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleEditUser">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -124,14 +142,17 @@ export default {
       },
       rules: {
         username: [
-          { required: true, message: '请输入活动名称', trigger: 'blur' },
+          { required: true, message: '请输入用户名', trigger: 'blur' },
           { min: 1, max: 6, message: '长度在 3 到 5 个字符', trigger: 'blur' }
         ],
         password: [
-          { required: true, message: '请输入活动名称', trigger: 'blur' },
+          { required: true, message: '请输入密码', trigger: 'blur' },
           { min: 6, max: 8, message: '长度在 3 到 5 个字符', trigger: 'blur' }
         ]
-      }
+      },
+      // 编辑用户相关数据
+      editDialogTableVisible: false,
+      userId: -1
     };
   },
   methods: {
@@ -249,6 +270,33 @@ export default {
       for (let key in this.formData) {
         this.formData[key] = '';
       }
+    },
+    // 点击编辑按钮时执行的函数
+    async handleClickEdit(userId) {
+      // 1 显示编辑对话框
+      this.editDialogTableVisible = true;
+      // 2 将需要编辑的userId保存在data中的userId中
+      this.userId = userId;
+      // 3 发送请求 (根据userid查询数据)
+      const res = await this.$http.get(`users/${this.userId}`);
+      const data = res.data;
+      this.formData = data.data;
+    },
+    // 点击编辑对话框中的确定按钮时执行的函数
+    async handleEditUser() {
+      const res = await this.$http.put(`users/${this.formData.id}`, {
+        email: this.formData.email,
+        mobile: this.formData.mobile
+      });
+      const data = res.data;
+      const {meta: {msg, status}} = data;
+      if (status === 200) {
+        this.$message.success(msg);
+        this.getData();
+      } else {
+        this.$message.error(msg);
+      }
+      this.editDialogTableVisible = false;
     }
   },
   created() {
