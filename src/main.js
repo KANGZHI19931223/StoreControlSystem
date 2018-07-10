@@ -5,6 +5,7 @@ import App from './App';
 import router from './router';
 import ElementUI from 'element-ui';
 import MyAxios from '@/plugins/MyAxios';
+// import MyFilter from '@/plugins/MyFilter';
 
 import 'element-ui/lib/theme-chalk/index.css';
 // 导入自定义index.css文件
@@ -27,6 +28,9 @@ Vue.config.productionTip = false;
 Vue.filter('fmtDate', (value, fmtString) => {
   return moment(value).format(fmtString);
 });
+// MyFilter.install = (Vue) => {
+//   Vue.prototype.$filter = MyFilter;
+// };
 new Vue({
   el: '#app',
   router,
