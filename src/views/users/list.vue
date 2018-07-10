@@ -53,7 +53,8 @@
           <el-switch
             v-model="scope.row.mg_state"
             active-color="#13ce66"
-            inactive-color="#ff4949">
+            inactive-color="#ff4949"
+            @change="handleUserState(scope.row)">
           </el-switch>
         </template>
       </el-table-column>
@@ -129,9 +130,24 @@ export default {
       // 当前页码改变时重新加载数据
       this.getData();
     },
-    // 点击搜索按钮触发的事件
+    // 点击搜索按钮触发的处理函数
     handleSearch() {
+      // 点击搜索按钮重新加载用户列表
       this.getData();
+    },
+    // 改变用户状态的处理函数
+    async handleUserState(user) {
+      // 发送请求
+      const res = await this.$http.put(`users/${user.id}/state/${user.mg_state}`);
+      const data = res.data;
+      const {meta: {msg, status}} = data;
+      if (status === 200) {
+        // 提示
+        this.$message.success(msg);
+      } else {
+        // 提示
+        this.$message.error(msg);
+      }
     }
   },
   created() {
