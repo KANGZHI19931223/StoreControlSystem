@@ -61,9 +61,6 @@ export default {
 </script>
 
 <style>
-.box-card {
-  height: 100%;
-}
 .el-card, .el-message {
   overflow: auto;
 }

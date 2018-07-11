@@ -8,6 +8,8 @@ import Home from '@/views/home';
 import Users from '@/views/users/list';
 // 引入home的子组件rights
 import Rights from '@/views/rights/rights';
+// 引入home的子组件roles
+import Roles from '@/views/rights/Roles';
 
 Vue.use(Router);
 
@@ -31,10 +33,17 @@ export default new Router({
           path: '/users',
           component: Users
         },
+        // 配置权限列表路由
         {
           name: 'rights',
           path: '/rights',
           component: Rights
+        },
+        // 配置角色列表路由
+        {
+          name: 'roles',
+          path: '/roles',
+          component: Roles
         }
       ]
     }

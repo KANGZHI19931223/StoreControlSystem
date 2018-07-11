@@ -181,10 +181,10 @@ export default {
     async getData() {
       // 获取数据前显示loading状态
       this.loading = true;
-      // 获取token
-      const token = sessionStorage.getItem('token');
-      // 在请求头中添加token信息
-      this.$http.defaults.headers.common['Authorization'] = token;
+      // // 获取token
+      // const token = sessionStorage.getItem('token');
+      // // 在请求头中添加token信息
+      // this.$http.defaults.headers.common['Authorization'] = token;
       // 发送请求获取user信息(其中的当前页和每页中的数据条数是必须发送的内容)
       const res = await this.$http.get(`users?pagenum=${this.pagenum}&pagesize=${this.pagesize}&query=${this.searchVal}`);
       // 请求回来数据后loading状态消失
