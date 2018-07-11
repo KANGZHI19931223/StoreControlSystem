@@ -6,6 +6,8 @@ import router from './router';
 import ElementUI from 'element-ui';
 import MyAxios from '@/plugins/MyAxios';
 // import MyFilter from '@/plugins/MyFilter';
+// 引入自定义面包屑组件
+import MyBreadcrumb from '@/components/MyBreadcrumb';
 
 import 'element-ui/lib/theme-chalk/index.css';
 // 导入自定义index.css文件
@@ -16,6 +18,8 @@ import moment from 'moment';
 MyAxios.install = (Vue) => {
   Vue.prototype.$http = MyAxios;
 };
+// 全局注册面包屑组件
+Vue.component(MyBreadcrumb.name, MyBreadcrumb);
 
 Vue.use(ElementUI);
 
