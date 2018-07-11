@@ -63,7 +63,7 @@
         <template slot-scope="scope">
           <el-button plain size="mini" type="primary" icon="el-icon-edit" @click="handleClickEdit(scope.row.id)"></el-button>
           <el-button plain size="mini" type="danger" icon="el-icon-delete" @click="handleDel(scope.row)"></el-button>
-          <el-button plain size="mini" type="success" icon="el-icon-check"></el-button>
+          <el-button plain size="mini" type="success" icon="el-icon-check" @click="handleClickSetRole(scope.row.id)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -117,6 +117,24 @@
         <el-button type="primary" @click="handleEditUser">确 定</el-button>
       </div>
     </el-dialog>
+    <!-- 分配角色弹出对话框 -->
+    <el-dialog title="分配角色" :visible.sync="setRoleDialogTableVisible" @close="handleClose">
+      <el-form>
+        <el-form-item label="当前用户" :label-width="formLabelWidth">
+          <el-input disabled v-model="currentUser" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="请选择角色" :label-width="formLabelWidth">
+          <el-select v-model="currentRoleId">
+            <el-option disabled :value="-1" label="请选择角色"></el-option>
+            <el-option :key="item.id" v-for="item in rolesList" :label="item.roleName" :value="item.id"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button @click="setRoleDialogTableVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleSetRole">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -152,7 +170,14 @@ export default {
       },
       // 编辑用户相关数据
       editDialogTableVisible: false,
-      userId: -1
+      userId: -1,
+      // 分配角色相关数据
+      setRoleDialogTableVisible: false,
+      formLabelWidth: '120px',
+      rolesList: [],
+      currentUser: '',
+      currentUserId: -1,
+      currentRoleId: -1
     };
   },
   methods: {
@@ -297,6 +322,33 @@ export default {
         this.$message.error(msg);
       }
       this.editDialogTableVisible = false;
+    },
+    // 点击分配角色按钮执行的函数
+    async handleClickSetRole(userId) {
+      this.setRoleDialogTableVisible = true;
+      this.currentUserId = userId;
+      const res = await this.$http.get('roles');
+      const data = res.data;
+      this.rolesList = data.data;
+      // scope.row中没有角色id所以需要根据userid查询用户信息
+      const resUser = await this.$http.get(`users/${this.currentUserId}`);
+      this.currentRoleId = resUser.data.data.rid;
+      console.log(resUser);
+      console.log(this.currentRoleId);
+      this.currentUser = resUser.data.data.username;
+    },
+    // 点击分配角色对话框中的确定按钮时执行的函数
+    async handleSetRole() {
+      const res = await this.$http.put(`users/${this.currentUserId}/role`, {rid: this.currentRoleId});
+      const data = res.data;
+      const {meta: {msg, status}} = data;
+      if (status === 200) {
+        this.$message.success(msg);
+        this.getData();
+      } else {
+        this.$message.error(msg);
+      }
+      this.setRoleDialogTableVisible = false;
     }
   },
   created() {
