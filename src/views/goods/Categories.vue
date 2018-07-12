@@ -5,7 +5,6 @@
      <!-- 添加分类按钮 -->
      <el-button type="success" plain class="add-categories">添加分类</el-button>
      <!-- 分类列表 -->
-
    </el-card>
 </template>
 
