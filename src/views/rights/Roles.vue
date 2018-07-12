@@ -13,7 +13,7 @@
         <template slot-scope="scope">
           <el-row v-for="item1 in scope.row.children" :key="item1.id">
             <el-col :span="4">
-              <el-tag closable class="tag">
+              <el-tag closable class="tag" @close="handleClose(scope.row, item1.id)">
                 {{ item1.authName }}
               </el-tag>
               <i class="el-icon-arrow-right"></i>
@@ -21,19 +21,26 @@
             <el-col :span="20">
               <el-row closable v-for="item2 in item1.children" :key="item2.id">
                 <el-col :span="4">
-                  <el-tag closable type="success" class="tag">
+                  <el-tag closable type="success" class="tag" @close="handleClose(scope.row, item2.id)">
                     {{ item2.authName }}
                   </el-tag>
                   <i class="el-icon-arrow-right"></i>
                 </el-col>
                 <el-col :span="20">
-                  <el-tag closable v-for="item3 in item2.children" :key="item3.id" class="tag" type="warning">
+                  <el-tag
+                    closable
+                    v-for="item3 in item2.children"
+                    :key="item3.id"
+                    class="tag"
+                    type="warning"
+                    @close="handleClose(scope.row, item3.id)">
                     {{ item3.authName }}
                   </el-tag>
                 </el-col>
               </el-row>
             </el-col>
           </el-row>
+          <el-row v-if="scope.row.children.length === 0">暂无数据</el-row>
         </template>
       </el-table-column>
       <el-table-column
@@ -86,10 +93,15 @@ export default {
     this.getData();
   },
   methods: {
+    // 获取角色列表数据
     async getData() {
       const {data: resData} = await this.$http.get('roles');
       this.rolesList = resData.data;
+    },
+    async handleClose(role, rightId) {
+      const {data: resData} = await this.$http.delete(`roles/${role.id}/rights/${rightId}`);
       console.log(resData);
+      role.children = resData.data;
     }
   }
 };

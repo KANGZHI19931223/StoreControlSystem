@@ -1,13 +1,16 @@
 html,
 body,
 h2 {
-    padding: 0;
-    margin: 0;
-    height: 100%;
+  padding: 0;
+  margin: 0;
+  height: 100%;
 }
 h2 {
-    font-weight: normal;
+  font-weight: normal;
 }
 .box-card {
-    height: 100%;
+  height: 100%;
+}
+.el-card, .el-message {
+  overflow: auto;
 }
