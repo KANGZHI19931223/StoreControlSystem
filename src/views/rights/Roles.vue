@@ -10,6 +10,7 @@
       :data="rolesList">
       <el-table-column
         type="expand">
+        <!-- 展示展开行权限 -->
         <template slot-scope="scope">
           <el-row v-for="item1 in scope.row.children" :key="item1.id">
             <el-col :span="4">
@@ -74,11 +75,21 @@
           <el-button
             plain size="mini"
             type="success"
-            icon="el-icon-check">
+            icon="el-icon-check"
+            @click="handleShowRightTree">
           </el-button>
         </template>
       </el-table-column>
     </el-table>
+    <!-- 分配权限对话框 -->
+    <el-dialog
+      title="权限分配"
+      :visible.sync="dialogVisible">
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -86,7 +97,9 @@
 export default {
   data() {
     return {
-      rolesList: []
+      rolesList: [],
+      // 分配权限对话框是否显示(默认false不显示)
+      dialogVisible: false
     };
   },
   created() {
@@ -98,10 +111,15 @@ export default {
       const {data: resData} = await this.$http.get('roles');
       this.rolesList = resData.data;
     },
+    // 取消权限事件
     async handleClose(role, rightId) {
       const {data: resData} = await this.$http.delete(`roles/${role.id}/rights/${rightId}`);
-      console.log(resData);
       role.children = resData.data;
+    },
+    // 展示分配权限树形对话框
+    handleShowRightTree() {
+      // 显示对话框
+      this.dialogVisible = true;
     }
   }
 };
