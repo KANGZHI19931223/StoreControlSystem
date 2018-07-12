@@ -3,7 +3,7 @@
     <!-- 面包屑 -->
     <my-breadcrumb level1="权限管理" level2="角色列表"></my-breadcrumb>
     <!-- 添加按钮 -->
-    <el-button plain class="add-role-btn">添加角色</el-button>
+    <el-button plain class="add-role-btn" @click="handleShowAddRole">添加角色</el-button>
     <!-- 角色表格 -->
     <el-table
       border
@@ -114,6 +114,29 @@
         <el-button type="primary" @click="handleDelRole">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 添加角色弹出对话框 -->
+    <el-dialog
+      title="添加角色"
+      width="30%"
+      :visible.sync="AddDialogVisible"
+      @close="handleAddRoleClose">
+      <el-form
+        label-position="right"
+        label-width="80px"
+        :model="formAddRole"
+        :rules="addRoleRules">
+        <el-form-item label="角色名称" prop="roleName">
+          <el-input v-model="formAddRole.roleName"></el-input>
+        </el-form-item>
+        <el-form-item label="角色描述" prop="roleDesc">
+          <el-input v-model="formAddRole.roleDesc"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="delDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleAddRole">确 定</el-button>
+      </span>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -135,7 +158,23 @@ export default {
       // 存储当前行对应的roleId角色id信息
       currentRoleId: '',
       // 删除角色展示对话框显示与否
-      delDialogVisible: false
+      delDialogVisible: false,
+      // 添加角色展示对话框显示与否
+      AddDialogVisible: false,
+      // 添加角色表单数据
+      formAddRole: {
+        roleName: '',
+        roleDesc: ''
+      },
+      // 添加角色表单验证规则
+      addRoleRules: {
+        roleName: [
+          { required: true, message: '请输入角色名称', trigger: 'blur' }
+        ],
+        roleDesc: [
+          { required: true, message: '请输入角色描述', trigger: 'blur' }
+        ]
+      }
     };
   },
   created() {
@@ -214,6 +253,32 @@ export default {
         this.getData();
       } else {
         this.$message.error(msg);
+      }
+    },
+    // 点击添加角色展示添加角色对话框
+    handleShowAddRole() {
+      this.AddDialogVisible = true;
+    },
+    // 处理添加角色事件
+    async handleAddRole() {
+      const {data: resData} = await this.$http.post('roles', this.formAddRole);
+      const {meta: {msg, status}} = resData;
+      if (status === 201) {
+        // 1 提示
+        this.$message.success(msg);
+        // 2 关闭对话框
+        this.AddDialogVisible = false;
+        // 3 重新加载角色列表
+        this.getData();
+      } else {
+        this.$message.error(msg);
+      }
+    },
+    // 处理关闭添加角色对话框事件
+    handleAddRoleClose() {
+      // 将添加角色绑定数据清空
+      for (let key in this.formAddRole) {
+        this.formAddRole[key] = '';
       }
     }
   }
