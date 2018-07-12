@@ -45,13 +45,13 @@ export default {
       menus: []
     };
   },
-  beforeCreate() {
-    // 简单验证有没有token
-    if (!sessionStorage.getItem('token')) {
-      this.$message.warning('请登录后访问');
-      this.$router.push('login');
-    }
-  },
+  // beforeCreate() {
+  //   // 简单验证有没有token
+  //   if (!sessionStorage.getItem('token')) {
+  //     this.$message.warning('请登录后访问');
+  //     this.$router.push('login');
+  //   }
+  // },
   created() {
     this.getData();
   },
