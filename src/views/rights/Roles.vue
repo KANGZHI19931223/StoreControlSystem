@@ -65,7 +65,8 @@
           <el-button
             plain size="mini"
             type="primary"
-            icon="el-icon-edit">
+            icon="el-icon-edit"
+            @click="handleShowEditRole(scope.row)">
           </el-button>
           <el-button
             plain size="mini"
@@ -137,6 +138,28 @@
         <el-button type="primary" @click="handleAddRole">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 修改角色弹出对话框 -->
+    <el-dialog
+      title="修改角色"
+      width="30%"
+      :visible.sync="editDialogVisible">
+      <el-form
+        label-position="right"
+        label-width="80px"
+        :model="formAddRole"
+        :rules="addRoleRules">
+        <el-form-item label="角色名称" prop="roleName">
+          <el-input v-model="formAddRole.roleName"></el-input>
+        </el-form-item>
+        <el-form-item label="角色描述">
+          <el-input v-model="formAddRole.roleDesc"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleEditRole">确 定</el-button>
+      </span>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -174,7 +197,9 @@ export default {
         roleDesc: [
           { required: true, message: '请输入角色描述', trigger: 'blur' }
         ]
-      }
+      },
+      // 修改角色展示对话框显示与否
+      editDialogVisible: false
     };
   },
   created() {
@@ -279,6 +304,28 @@ export default {
       // 将添加角色绑定数据清空
       for (let key in this.formAddRole) {
         this.formAddRole[key] = '';
+      }
+    },
+    // 点击修改角色展示修改角色对话框
+    handleShowEditRole(role) {
+      this.editDialogVisible = true;
+      // 将当前角色信息保存到
+      this.formAddRole.roleName = role.roleName;
+      this.formAddRole.roleDesc = role.roleDesc;
+      this.currentRoleId = role.id;
+    },
+    // 处理修改角色事件
+    async handleEditRole() {
+      const {data: resData} = await this.$http.put(`roles/${this.currentRoleId}`, this.formAddRole);
+      const {meta: {msg, status}} = resData;
+      if (status === 200) {
+        this.$message.success(msg);
+        this.editDialogVisible = false;
+        this.handleAddRoleClose();
+        this.currentRoleId = '';
+        this.getData();
+      } else {
+        this.$message.error(msg);
       }
     }
   }
