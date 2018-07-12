@@ -76,7 +76,7 @@
             plain size="mini"
             type="success"
             icon="el-icon-check"
-            @click="handleShowRightTree">
+            @click="handleShowRightTree(scope.row)">
           </el-button>
         </template>
       </el-table-column>
@@ -84,10 +84,22 @@
     <!-- 分配权限对话框 -->
     <el-dialog
       title="权限分配"
-      :visible.sync="dialogVisible">
+      :visible.sync="dialogVisible"
+      @close="handleTreeClose">
+        <!-- 树形权限结构 -->
+        <el-tree
+          :data="treeRightData"
+          show-checkbox
+          default-expand-all
+          node-key="id"
+          ref="tree"
+          highlight-current
+          :props="defaultProps"
+          :default-checked-keys="checkedKeys">
+        </el-tree>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="handleEditRights">确 定</el-button>
       </span>
     </el-dialog>
   </el-card>
@@ -99,7 +111,17 @@ export default {
     return {
       rolesList: [],
       // 分配权限对话框是否显示(默认false不显示)
-      dialogVisible: false
+      dialogVisible: false,
+      // 树形权限
+      treeRightData: [],
+      defaultProps: {
+        children: 'children',
+        label: 'authName'
+      },
+      // 树形权限中被选中列表
+      checkedKeys: [],
+      // 存储当前行对应的roleId角色id信息
+      currentRoleId: ''
     };
   },
   created() {
@@ -117,9 +139,47 @@ export default {
       role.children = resData.data;
     },
     // 展示分配权限树形对话框
-    handleShowRightTree() {
+    async handleShowRightTree(role) {
+      // 将当前的角色role保存到data中的currentRole中
+      this.currentRoleId = role.id;
       // 显示对话框
       this.dialogVisible = true;
+      // 请求树形角色信息
+      const {data: resData} = await this.$http.get('rights/tree');
+      this.treeRightData = resData.data;
+      role.children.forEach((item1) => {
+        item1.children.forEach((item2) => {
+          item2.children.forEach((item3) => {
+            this.checkedKeys.push(item3.id);
+          });
+        });
+      });
+    },
+    // 关闭树形权限对话框是触发的事件
+    handleTreeClose() {
+      // 将存放选中权限的数组清空
+      this.checkedKeys = [];
+    },
+    // 点击树形权限列表中的确定按钮触发的事件
+    async handleEditRights() {
+      // 1 获取当前被选中的节点
+      const checkedTreeKeys = this.$refs.tree.getCheckedKeys();
+      const HalfCheckedKeys = this.$refs.tree.getHalfCheckedKeys();
+      const keys = [...checkedTreeKeys, ...HalfCheckedKeys];
+      const {data: resData} = await this.$http.post(`roles/${this.currentRoleId}/rights`, {
+        rids: keys.join(',')
+      });
+      const {meta: {msg, status}} = resData;
+      if (status === 200) {
+        // 提示信息
+        this.$message.success(msg);
+        // 关闭树形对话框
+        this.dialogVisible = false;
+        // 重新加载列表数据
+        this.getData();
+      } else {
+        this.$message.error(msg);
+      }
     }
   }
 };
