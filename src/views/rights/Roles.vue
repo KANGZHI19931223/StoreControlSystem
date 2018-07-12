@@ -70,7 +70,8 @@
           <el-button
             plain size="mini"
             type="danger"
-            icon="el-icon-delete">
+            icon="el-icon-delete"
+            @click="handleShowDelRole(scope.row.id)">
           </el-button>
           <el-button
             plain size="mini"
@@ -102,6 +103,17 @@
         <el-button type="primary" @click="handleEditRights">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 删除角色弹出对话框 -->
+    <el-dialog
+      title="删除角色"
+      width="30%"
+      :visible.sync="delDialogVisible">
+      <span>确定删除该角色吗?</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="delDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleDelRole">确 定</el-button>
+      </span>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -121,7 +133,9 @@ export default {
       // 树形权限中被选中列表
       checkedKeys: [],
       // 存储当前行对应的roleId角色id信息
-      currentRoleId: ''
+      currentRoleId: '',
+      // 删除角色展示对话框显示与否
+      delDialogVisible: false
     };
   },
   created() {
@@ -176,6 +190,27 @@ export default {
         // 关闭树形对话框
         this.dialogVisible = false;
         // 重新加载列表数据
+        this.getData();
+      } else {
+        this.$message.error(msg);
+      }
+    },
+    // 点击删除按钮展示删除对话框事件
+    async handleShowDelRole(roleId) {
+      this.delDialogVisible = true;
+      // 将当前角色的id保存
+      this.currentRoleId = roleId;
+    },
+    // 处理删除角色事件
+    async handleDelRole() {
+      const {data: resData} = await this.$http.delete(`roles/${this.currentRoleId}`);
+      const {meta: {msg, status}} = resData;
+      if (status === 200) {
+        // 提示
+        this.$message.success(msg);
+        // 关闭对话框
+        this.delDialogVisible = false;
+        // 重新加载角色列表
         this.getData();
       } else {
         this.$message.error(msg);
