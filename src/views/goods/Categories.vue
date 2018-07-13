@@ -3,7 +3,7 @@
      <!-- 面包屑 -->
      <my-breadcrumb level1="商品管理" level2="商品分类"></my-breadcrumb>
      <!-- 添加分类按钮 -->
-     <el-button type="success" plain class="add-categories">添加分类</el-button>
+     <el-button type="success" @click="handleShowAdd" plain class="add-categories">添加分类</el-button>
      <!-- 分类列表 -->
      <el-table
       :data="goodsList"
@@ -13,6 +13,7 @@
         label="分类名称"
         width="180">
       </el-table-column> -->
+      <!-- 商品分类展开效果 -->
       <el-tree-grid
         prop="cat_name"
         label="分类名称"
@@ -63,6 +64,29 @@
       layout="total, sizes, prev, pager, next, jumper"
       :total="total">
     </el-pagination>
+    <!-- 添加分类弹出对话框 -->
+    <el-dialog
+      title="添加商品分类"
+      :visible.sync="addDialogVisible">
+      <el-form label-position="right" label-width="80px" :model="addFormData">
+        <el-form-item label="分类名称">
+          <el-input v-model="addFormData.cat_name"></el-input>
+        </el-form-item>
+        <el-form-item label="分类层级">
+          <el-cascader
+            :options="options"
+            :props="{value: 'cat_id', label: 'cat_name'}"
+            expand-trigger="hover"
+            :change-on-select="true"
+            v-model="selectedOptions"
+          ></el-cascader>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+        <el-button @click="addDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleAddCat">确 定</el-button>
+      </span>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -74,21 +98,27 @@ export default {
       goodsList: [],
       total: 0,
       pagenum: 1,
-      pagesize: 10
+      pagesize: 10,
+      // 添加商品分类相关数据
+      addDialogVisible: false,
+      addFormData: {
+        cat_name: ''
+      },
+      options: [],
+      selectedOptions: []
     };
   },
   created() {
     this.getCate();
   },
   methods: {
-    // 获取一级菜单
+    // 获取所有商品分类
     async getCate() {
       const {data: resData} = await this.$http.get(`categories?type=3&pagenum=${this.pagenum}&pagesize=${this.pagesize}`);
       const {data, meta: {msg, status}} = resData;
       if (status === 200) {
         this.goodsList = data.result;
         this.total = data.total;
-        console.log(data);
       } else {
         this.$message.error(msg);
       }
@@ -102,6 +132,48 @@ export default {
     handleCurrentChange(val) {
       this.pagenum = val;
       this.getCate();
+    },
+    // 点击添加分类显示对话框
+    async handleShowAdd () {
+      // 显示对话框
+      this.addDialogVisible = true;
+      // 请求所有分类
+      const {data: resData} = await this.$http({
+        url: '/categories',
+        params: {
+          type: 2
+        }
+      });
+      this.options = resData.data;
+    },
+    // 处理添加分类事件
+    async handleAddCat() {
+      const {data: resData} = await this.$http({
+        url: '/categories',
+        method: 'post',
+        data: {
+          cat_pid: this.selectedOptions[this.selectedOptions.length - 1],
+          cat_name: this.addFormData.cat_name,
+          cat_level: this.selectedOptions.length
+        }
+      });
+      const {meta: {msg, status}} = resData;
+      if (status === 201) {
+        // 1 提示
+        this.$message({
+          type: 'success',
+          message: msg
+        });
+        // 2 关闭对话框
+        this.addDialogVisible = false;
+        // 3 重新加载页面
+        this.getCate();
+      } else {
+        this.$message({
+          type: 'warning',
+          message: msg
+        });
+      }
     }
   },
   components: {
