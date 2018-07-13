@@ -44,7 +44,8 @@
           <el-button
             plain size="mini"
             type="primary"
-            icon="el-icon-edit">
+            icon="el-icon-edit"
+            @click="handleShowEditCat(scope.row)">
           </el-button>
           <el-button
             plain size="mini"
@@ -88,6 +89,20 @@
         <el-button type="primary" @click="handleAddCat">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 修改商品分类对话框 -->
+    <el-dialog
+      title="修改商品分类"
+      :visible.sync="editDialogVisible">
+      <el-form label-position="right" label-width="80px" :model="editFormData">
+        <el-form-item label="分类名称">
+          <el-input v-model="editFormData.cat_name"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleEditCat">确 定</el-button>
+      </span>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -106,7 +121,13 @@ export default {
         cat_name: ''
       },
       options: [],
-      selectedOptions: []
+      selectedOptions: [],
+      // 修改商品分类相关数据
+      editDialogVisible: false,
+      editFormData: {
+        cat_id: '',
+        cat_name: ''
+      }
     };
   },
   created() {
@@ -208,6 +229,38 @@ export default {
           message: '已取消删除'
         });
       });
+    },
+    // 点击修改按钮弹出修改对话框
+    handleShowEditCat(editCatInf) {
+      this.editDialogVisible = true;
+      this.editFormData = editCatInf;
+    },
+    // 处理修改商品分类功能
+    async handleEditCat() {
+      const {data: resData} = await this.$http({
+        url: `categories/${this.editFormData.cat_id}`,
+        method: 'put',
+        data: {
+          cat_name: this.editFormData.cat_name
+        }
+      });
+      const {meta: {msg, status}} = resData;
+      if (status === 200) {
+        // 提示
+        this.$message({
+          type: 'success',
+          message: msg
+        });
+        // 关闭对话框
+        this.editDialogVisible = false;
+        // 重新加载页面
+        this.getCate();
+      } else {
+        this.$message({
+          type: 'error',
+          message: msg
+        });
+      }
     }
   },
   components: {
