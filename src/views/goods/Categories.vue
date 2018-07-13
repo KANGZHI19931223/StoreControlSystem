@@ -49,7 +49,8 @@
           <el-button
             plain size="mini"
             type="danger"
-            icon="el-icon-delete">
+            icon="el-icon-delete"
+            @click="handleDelCat(scope.row)">
           </el-button>
         </template>
       </el-table-column>
@@ -174,6 +175,39 @@ export default {
           message: msg
         });
       }
+    },
+    // 点击删除按钮弹出确认框
+    handleDelCat(cateInf) {
+      this.$confirm('此操作将永久删除该分类, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        // 点击确定后发送请求
+        const {data: resData} = await this.$http({
+          url: `/categories/${cateInf.cat_id}`,
+          method: 'delete'
+        });
+        const {meta: {status, msg}} = resData;
+        if (status === 200) {
+          this.$message({
+            type: 'success',
+            message: msg
+          });
+          // 重新加载页面
+          this.getCate();
+        } else {
+          this.$message({
+            type: 'error',
+            message: msg
+          });
+        }
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
     }
   },
   components: {
