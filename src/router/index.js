@@ -12,6 +12,8 @@ import Rights from '@/views/rights/rights';
 import Roles from '@/views/rights/Roles';
 // 引入categories
 import Categories from '@/views/goods/categories';
+// 引入商品列表组件
+import GoodsList from '@/views/goods/List';
 
 import { Message } from 'element-ui';
 
@@ -54,6 +56,12 @@ const router = new Router({
           name: 'categories',
           path: '/categories',
           component: Categories
+        },
+        // 配置商品列表路由
+        {
+          name: 'goodslist',
+          path: '/goods',
+          component: GoodsList
         }
       ]
     }
