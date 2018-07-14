@@ -1,6 +1,7 @@
 <template>
   <el-card class="box-card">
     <!-- 面包屑 -->
+    <!-- <my-breadcrumb :level="['用户管理', '用户列表']"></my-breadcrumb> -->
     <my-breadcrumb level1="用户管理" level2="用户列表"></my-breadcrumb>
     <!-- 搜索框 -->
     <el-input v-model="searchVal" placeholder="请输入内容" class="search" clearable>

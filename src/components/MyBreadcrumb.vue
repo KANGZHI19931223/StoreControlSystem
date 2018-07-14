@@ -1,6 +1,7 @@
 <template>
   <el-breadcrumb separator-class="el-icon-arrow-right">
     <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+    <!-- <el-breadcrumb-item :key="index" v-for="(item, index) in level">{{ item }}</el-breadcrumb-item> -->
     <el-breadcrumb-item>{{ this.level1 }}</el-breadcrumb-item>
     <el-breadcrumb-item>{{ this.level2 }}</el-breadcrumb-item>
   </el-breadcrumb>
@@ -9,6 +10,9 @@
 <script>
 export default {
   name: 'MyBreadcrumb',
+  // props: {
+  //   level: []
+  // }
   props: ['level1', 'level2']
 };
 </script>
